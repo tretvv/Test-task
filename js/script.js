@@ -23,61 +23,52 @@ window.onload = function() {
 	var alertNameApp = document.getElementById('alert_name_app');
 	var alertCommentApp = document.getElementById('alert_comment_app');
 
-	if(JSON.parse(localStorage.getItem('key'))) {
-		var arrAppLS = JSON.parse(localStorage.getItem('key'));
-		var arrApp = arrAppLS;
-		var idApp = arrAppLS.length + 1;
-		for(var i = 0; i < arrAppLS.length; i++) {
-			tableApp.insertAdjacentHTML('beforeend', '<tr><td>' + arrAppLS[i].id + '</td><td>' + arrAppLS[i].name + ' </td><td>' + arrAppLS[i].comment + '</td><td>' + arrAppLS[i].date + '</td></tr>');
-		}
-		amountApp.innerHTML = arrApp.length;
-	} else {
-		var arrApp = [];
-		var idApp = 1;
+	var arrLS;
+	var id = 0;
+	try {
+		arrLS = JSON.parse(localStorage.getItem('key'));
+	} catch(err) {
+		localStorage.removeItem('key');
 	}
 
-	function formatDate(date) {
-		var monthNames = [
-			"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"
-		];
-		var day = date.getDate();
-		var monthIndex = date.getMonth();
-		var year = date.getFullYear();
-		var hours = date.getHours();
-		var minutes = date.getMinutes();
-		if(minutes < 10) {
-			minutes = '0' + minutes;
+	if(arrLS) {
+		id = arrLS.length;
+		for(var i in arrLS) {
+			tableApp.insertAdjacentHTML('beforeend', '<tr><td>' + arrLS[i].id + '</td><td>' + arrLS[i].name + ' </td><td>' + arrLS[i].comment + '</td><td>' + arrLS[i].date + '</td></tr>');
 		}
-		return day + '.' + monthNames[monthIndex] + '.' + year + ' ' + hours + ':' + minutes;
+		amountApp.innerHTML = arrLS.length;
+	} else {
+		arrLS = [];
 	}
 
 	function clear() {
-		nameApp.value = "";
-		commentApp.value = "";
+		nameApp.value = '';
+		commentApp.value = '';
 		alertNameApp.innerHTML = '';
 		alertCommentApp.innerHTML = '';
 	}
 
 	btnAdd.onclick = function() {
-		if(nameApp.value == '') {
+		if(!nameApp.value) {
 			alertNameApp.innerHTML = "<strong>Введите имя автора</strong>";
 			return false;
 		}
-		if(commentApp.value == '') {
+		if(!commentApp.value) {
 			alertCommentApp.innerHTML = "<strong>Введите комментарий</strong>";
 			return false;
 		}
-		tableApp.insertAdjacentHTML('beforeend', '<tr><td>' + idApp + '</td><td>' + nameApp.value + ' </td><td>' + commentApp.value + '</td><td>' + formatDate(new Date()) + '</td></tr>');
-		arrApp.push({
-			id: idApp,
+		var currDate = new Date();
+		currDate = currDate.toLocaleString();
+		tableApp.insertAdjacentHTML('beforeend', '<tr><td>' + ++id + '</td><td>' + nameApp.value + ' </td><td>' + commentApp.value + '</td><td>' + currDate + '</td></tr>');
+		arrLS.push({
+			id: id,
 			name: nameApp.value,
 			comment: commentApp.value,
-			date: formatDate(new Date())
+			date: currDate
 		});
-		localStorage.setItem('key', JSON.stringify(arrApp));
+		localStorage.setItem('key', JSON.stringify(arrLS));
 		modal.style.display = "none";
-		amountApp.innerHTML = arrApp.length;
-		idApp++;
+		amountApp.innerHTML = arrLS.length;
 		clear();
 	};
 };
